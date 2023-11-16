@@ -37,7 +37,7 @@ def main(choice_arg=''):
         print(f'Received choice {choice_arg} via argv.')
         choice = choice_arg
     else:
-        print('Welcome to the dataset downloader for ALLEGRO. Select an option:\n')
+        print('Welcome to FUGUE. Select an option:\n')
         choice = input('1. NCBI Datasets\n2. FungiDB\n3. EnsemblFungi\n4. MycoCosm\n5. Merge Downloads\n6. All of the Above\n7. Quit\nYour choice: ')
 
     if choice in downloaders:

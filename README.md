@@ -1,4 +1,4 @@
-# Fugue / Fungal Universe Genome Unification Engine
+# FUGUE / Fungal Universe Genome Unification Engine
 
 This repository contains instructions and scripts that allow you to download genomes, CDS, and proteomes for more than 2,000 fungal species used in ALLEGRO. It also contains instructions for running orthology analysis to find the orthologs to the seven genes of interest in _Saccharomyces cerevisiae_.
 
