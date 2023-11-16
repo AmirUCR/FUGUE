@@ -4,7 +4,7 @@ This repository contains instructions and scripts that allow you to download gen
 
 ## Prerequisites
 1. First, download Miniconda [https://docs.conda.io/en/main/miniconda.html](https://docs.conda.io/en/main/miniconda.html)
-2. Clone this repository by either clicking on the green Code on the top right and clicking "Download ZIP," or downloading [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and then `$ git clone https://github.com/AmirUCR/ALLEGRO_Fungi_Downloader.git` in your desired directory.
+2. Clone this repository by either clicking on the green Code on the top right and clicking "Download ZIP," or downloading [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and then `$ git clone https://github.com/AmirUCR/Fugue.git` in your desired directory.
 3. These installation instructions are for Ubuntu 20.04.6 LTS. Create a conda environment and activate it:
 
 ```
