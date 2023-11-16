@@ -8,8 +8,8 @@ This repository contains instructions and scripts that allow you to download gen
 3. These installation instructions are for Ubuntu 20.04.6 LTS. Create a conda environment and activate it:
 
 ```
-conda create -n allegro python=3.10 -y
-conda activate allegro
+conda create -n fugue python=3.10 -y
+conda activate fugue
 ```
 
 4. Install the required Python packages.
