@@ -244,7 +244,7 @@ class MycoCosm_Downloader:
         return names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls
 
 
-    def download(self):
+    def download(self, chunk_size: int = 1):
         all_names = list()
         all_genome_fasta_files = list()
         all_cds_fasta_files = list()
@@ -253,7 +253,6 @@ class MycoCosm_Downloader:
         all_genome_urls = list()
         all_proteome_urls = list()
 
-        chunk_size = 1
         chunks = [list(self.fungi_dict.values())[i:i+chunk_size] for i in range(0, len(self.fungi_dict), chunk_size)]
 
         for url_chunk in chunks:

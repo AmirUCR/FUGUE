@@ -209,7 +209,7 @@ class NCBI_Downloader:
         return names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls
 
 
-    def download(self):
+    def download(self, chunk_size: int = 15):
         all_names = list()
         all_genome_fasta_files = list()
         all_cds_fasta_files = list()
@@ -218,7 +218,6 @@ class NCBI_Downloader:
         all_genome_urls = list()
         all_proteome_urls = list()
         
-        chunk_size = 15
         chunks = [self.matches[i:i+chunk_size] for i in range(0, len(self.matches), chunk_size)]
 
         for url_chunk in chunks:

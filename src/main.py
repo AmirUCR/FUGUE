@@ -1,11 +1,17 @@
 import os
 import sys
+import threading
 
 from downloaders.NCBI.ncbi_downloader import NCBI_Downloader
 from downloaders.FungiDB.fungidb_downloader import FungiDB_Downloader
 from downloaders.EnsemblFungi.ensembl_download import EnsemblFungi_Downloader
 from downloaders.MycoCosm.mycocosm_download import MycoCosm_Downloader
 from utils.merger import merge_dbs
+
+def initialize_downloader(downloader_class):
+    downloader = downloader_class()
+    downloader.download()
+
 
 def main(choice_arg=''):
     if not os.path.exists('data'):
@@ -18,6 +24,13 @@ def main(choice_arg=''):
         '2': FungiDB_Downloader,
         '3': EnsemblFungi_Downloader,
         '4': MycoCosm_Downloader,
+    }
+
+    names =  {
+        '1': 'NCBI Downloader',
+        '2': 'FungiDB Downloader',
+        '3': 'EnsemblFungi Downloader',
+        '4': 'MycoCosm Downloader',
     }
 
     if choice_arg:
@@ -35,10 +48,14 @@ def main(choice_arg=''):
         merge_dbs()
         
     elif choice == '6':
-        for i in range(1, 5):
-            print(f'Running {downloaders[i]}...')
-            downloader = downloaders[choice]()
-            downloader.download()
+        threads = []
+        for _, downloader_class in downloaders.items():
+            thread = threading.Thread(target=initialize_downloader, args=(downloader_class,))
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
 
         print('Merging...')
         merge_dbs()
