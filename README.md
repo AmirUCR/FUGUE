@@ -19,7 +19,6 @@ pip install pandas
 pip install biopython
 pip install PyYAML
 pip install requests
-conda install -c bioconda bowtie
 ```
 
 ## Gathering the Data
