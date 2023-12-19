@@ -1,5 +1,5 @@
 #!/bin/sh
-DIR="../Fungi_Downloader/data/fourdbs_concat/proteomes/"
+DIR="../../../data/fourdbs_concat/proteomes/"
 
 for FILE in $(ls $DIR)
 do

@@ -73,8 +73,8 @@ class NCBI_Downloader:
             return ''
 
 
-    def fetch_url(self, name, names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls, allocated_i):
-        # DOWNLOAD GENOME, PROTEOME, CDS
+    def fetch_url(self, name, names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls, allocated_i):
+        # DOWNLOAD GENOME, PROTEOME, CDS, GFF
         headers = {
             'Accept': 'application/zip',
         }
@@ -84,6 +84,7 @@ class NCBI_Downloader:
                 'GENOME_FASTA',
                 'PROT_FASTA',
                 'CDS_FASTA',
+                'GENOME_GFF'
             ],
         }
         
@@ -95,12 +96,13 @@ class NCBI_Downloader:
         cds_file_name = f'data/NCBI/cds/{file_name}_cds.fna'
         protein_file_name = f'data/NCBI/proteomes/{file_name}.faa'
         genome_file_name = f'data/NCBI/genomes/{file_name}_genomic.fna'
+        gff_file_name = f'data/NCBI/gff/{file_name}.gff'
 
         tax_id = self.get_taxon_id(species_name=name, api_key=self.api_key)  # GET TAXON
         accession = self.get_accession(taxon_id=tax_id, api_key=self.api_key)  # GET ACCESSION
 
         # TEST FOR EXISTENCE
-        if not os.path.exists(cds_file_name) or not os.path.exists(genome_file_name) or not os.path.exists(protein_file_name):
+        if not os.path.exists(cds_file_name) or not os.path.exists(genome_file_name) or not os.path.exists(protein_file_name) or not os.path.exists(gff_file_name):
             if tax_id == '':
                 print(f'No taxonomy id found for {name}. Skipping...')
                 return
@@ -140,6 +142,9 @@ class NCBI_Downloader:
 
                     if accession in f:  # GCF_000182925.2_NC12 in GCF_000182925.2_NC12_genomic.fna
                         shutil.move(f_path, genome_file_name)  # genomes/neurospora_crassa_genomic.fna
+
+                    if '.gff' in f:
+                        shutil.move(f_path, gff_file_name)  # gff/neurospora_crassa.gff
                 # --------------------------------------------------------------------
                 # Clean up
                 os.remove(f'{name}{allocated_i}_download.zip')
@@ -161,6 +166,9 @@ class NCBI_Downloader:
                 if os.path.exists(genome_file_name):
                     os.remove(genome_file_name)
 
+                if os.path.exists(gff_file_name):
+                    os.remove(gff_file_name)
+
                 if os.path.exists(f'{name}{allocated_i}'):
                     shutil.rmtree(f'{name}{allocated_i}')
 
@@ -169,11 +177,12 @@ class NCBI_Downloader:
         names[allocated_i] = new_name
         genome_fasta_files[allocated_i] = f'{file_name}_genomic.fna'
         cds_fasta_files[allocated_i] = f'{file_name}_cds.fna'
+        gff_files[allocated_i] = f'{file_name}.gff'
         original_names[allocated_i] = file_name
         cds_urls[allocated_i] =  f"curl -H \"Accept: application/zip\" \"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/accession/{accession}/download?include_annotation_type=CDS_FASTA\" --output {file_name}_cds_download.zip"
         genome_urls[allocated_i] =  f"curl -H \"Accept: application/zip\" \"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/accession/{accession}/download?include_annotation_type=GENOME_FASTA\" --output {file_name}_genome_download.zip"
         proteome_urls[allocated_i] =  f"curl -H \"Accept: application/zip\" \"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/accession/{accession}/download?include_annotation_type=PROT_FASTA\" --output {file_name}_prot_download.zip"
-
+        gff_urls[allocated_i] = f"curl -H \"Accept: application/zip\" \"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/accession/{accession}/download?include_annotation_type=GENOME_GFF\" --output {file_name}_gff_download.zip"
 
     def fetch_url_chunk(self, chunk):
         threads = []
@@ -181,15 +190,17 @@ class NCBI_Downloader:
         names = [None] * len(chunk)
         genome_fasta_files = [None] * len(chunk)
         cds_fasta_files = [None] * len(chunk)
+        gff_files = [None] * len(chunk)
         original_names = [None] * len(chunk)
         cds_urls = [None] * len(chunk)
         genome_urls = [None] * len(chunk)
         proteome_urls = [None] * len(chunk)
+        gff_urls = [None] * len(chunk)
 
         for i, name in enumerate(chunk):
             thread = threading.Thread(
                 target=self.fetch_url,
-                args=(name, names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls, i)
+                args=(name, names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls, i)
                 )
             
             threads.append(thread)
@@ -201,34 +212,40 @@ class NCBI_Downloader:
         names = [name for name in names if name is not None]
         genome_fasta_files = [name for name in genome_fasta_files if name is not None]
         cds_fasta_files = [name for name in cds_fasta_files if name is not None]
+        gff_files = [name for name in gff_files if name is not None]
         original_names = [name for name in original_names if name is not None]
         cds_urls = [url for url in cds_urls if url is not None]
         genome_urls = [url for url in genome_urls if url is not None]
         proteome_urls = [url for url in proteome_urls if url is not None]
+        gff_urls = [url for url in gff_urls if url is not None]
 
-        return names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls
+        return names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls
 
 
-    def download(self, chunk_size: int = 15):
+    def download(self, chunk_size: int=15):
         all_names = list()
         all_genome_fasta_files = list()
         all_cds_fasta_files = list()
+        all_gff_files = list()
         all_original_names = list()
         all_cds_urls = list()
         all_genome_urls = list()
         all_proteome_urls = list()
+        all_gff_urls = list()
         
         chunks = [self.matches[i:i+chunk_size] for i in range(0, len(self.matches), chunk_size)]
 
         for url_chunk in chunks:
-            names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls = self.fetch_url_chunk(url_chunk)
+            names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls = self.fetch_url_chunk(url_chunk)
             all_names.extend(names)
             all_genome_fasta_files.extend(genome_fasta_files)
             all_cds_fasta_files.extend(cds_fasta_files)
+            all_gff_files.extend(gff_files)
             all_original_names.extend(original_names)
             all_cds_urls.extend(cds_urls)
             all_genome_urls.extend(genome_urls)
             all_proteome_urls.extend(proteome_urls)
+            all_gff_urls.extend(gff_urls)
 
 
         with open('data/NCBI/names.txt', 'w') as f:
@@ -239,10 +256,12 @@ class NCBI_Downloader:
             'species_name': all_names,
             'genome_file_name': all_genome_fasta_files,
             'cds_file_name': all_cds_fasta_files,
+            'gff_file_name': all_gff_files,
             'original_name': all_original_names,
             'cds_url': all_cds_urls,    
             'genome_url': all_genome_urls,
-            'proteome_url': all_proteome_urls
+            'proteome_url': all_proteome_urls,
+            'gff_url': all_gff_urls
         })
 
         df.to_csv(self.output_file_name, index=False)

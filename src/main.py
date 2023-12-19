@@ -7,6 +7,7 @@ from downloaders.FungiDB.fungidb_downloader import FungiDB_Downloader
 from downloaders.EnsemblFungi.ensembl_download import EnsemblFungi_Downloader
 from downloaders.MycoCosm.mycocosm_download import MycoCosm_Downloader
 from utils.merger import merge_dbs
+from utils.gff_to_cds import create_cds_from_gff
 
 def initialize_downloader(downloader_class):
     downloader = downloader_class()
@@ -26,19 +27,12 @@ def main(choice_arg=''):
         '4': MycoCosm_Downloader,
     }
 
-    names =  {
-        '1': 'NCBI Downloader',
-        '2': 'FungiDB Downloader',
-        '3': 'EnsemblFungi Downloader',
-        '4': 'MycoCosm Downloader',
-    }
-
     if choice_arg:
         print(f'Received choice {choice_arg} via argv.')
         choice = choice_arg
     else:
         print('Welcome to FUGUE. Select an option:\n')
-        choice = input('1. NCBI Datasets\n2. FungiDB\n3. EnsemblFungi\n4. MycoCosm\n5. Merge Downloads\n6. All of the Above\n7. Quit\nYour choice: ')
+        choice = input('1. NCBI Datasets\n2. FungiDB\n3. EnsemblFungi\n4. MycoCosm\n5. Merge Downloads\n6. Create CDS from GFF\n7.All of the Above\n8. Quit\nYour choice: ')
 
     if choice in downloaders:
         downloader = downloaders[choice]()
@@ -46,8 +40,11 @@ def main(choice_arg=''):
 
     elif choice == '5':
         merge_dbs()
-        
+
     elif choice == '6':
+        create_cds_from_gff()
+        
+    elif choice == '7':
         threads = []
         for _, downloader_class in downloaders.items():
             thread = threading.Thread(target=initialize_downloader, args=(downloader_class,))
@@ -59,6 +56,8 @@ def main(choice_arg=''):
 
         print('Merging...')
         merge_dbs()
+        print('Creating CDS from GFF...')
+        create_cds_from_gff()
 
     print('Goodbye.')
     return 0

@@ -13,11 +13,13 @@ def merge_dbs():
     new_cds_dir = os.path.join(concat_destination_dir, 'cds')
     new_genome_dir = os.path.join(concat_destination_dir, 'genomes')
     new_prot_dir = os.path.join(concat_destination_dir, 'proteomes')
+    new_gff_dir = os.path.join(concat_destination_dir, 'gff')
 
     if not os.path.exists(concat_destination_dir): os.mkdir(concat_destination_dir)
     if not os.path.exists(os.path.join(concat_destination_dir, 'cds')): os.makedirs(new_cds_dir)
     if not os.path.exists(os.path.join(concat_destination_dir, 'genomes')): os.makedirs(new_genome_dir)
     if not os.path.exists(os.path.join(concat_destination_dir, 'proteomes')): os.makedirs(new_prot_dir)
+    if not os.path.exists(os.path.join(concat_destination_dir, 'gff')): os.makedirs(new_gff_dir)
 
     ncbi = pd.read_csv(f'{ncbi_dir}/ncbi_input_species.csv')
     ncbi['source'] = 'NCBI'
@@ -82,10 +84,12 @@ def merge_dbs():
         cds_f_name = row['cds_file_name']
         genome_f_name = row['genome_file_name']
         protein_f_name = row['original_name'] + '.faa'
+        gff_f_name = row['gff_file_name']
 
         shutil.copy(f"{source_to_dir[row['source']]}/cds/{cds_f_name}", new_cds_dir)
         shutil.copy(f"{source_to_dir[row['source']]}/genomes/{genome_f_name}", new_genome_dir)
         shutil.copy(f"{source_to_dir[row['source']]}/proteomes/{protein_f_name}", new_prot_dir)
+        shutil.copy(f"{source_to_dir[row['source']]}/gff/{gff_f_name}", new_gff_dir)
 
     concat.to_csv(os.path.join(concat_destination_dir, 'fourdbs_input_species.csv'), index=False)
     

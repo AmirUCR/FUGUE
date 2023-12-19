@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import gzip
 import shutil
 import requests
@@ -21,7 +22,7 @@ class EnsemblFungi_Downloader:
         self.output_file_name = 'data/EnsemblFungi/ensembl_input_species.csv'
 
 
-    def fetch_url(self, row, names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls, allocated_i):
+    def fetch_url(self, row, names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls, allocated_i):
         new_name = process_two_part_name(row['Species'])
         file_name = process_name(row['Species'])
         
@@ -30,13 +31,15 @@ class EnsemblFungi_Downloader:
         cds_file_name = f'data/EnsemblFungi/cds/{file_name}_cds.fna'
         protein_file_name = f'data/EnsemblFungi/proteomes/{file_name}.faa'
         genome_file_name = f'data/EnsemblFungi/genomes/{file_name}_genomic.fna'
-
+        gff_file_name = f'data/EnsemblFungi/gff/{file_name}.gff'
+        
         cds_url = row['cds_url']
         genome_url = row['dna_url']
         protein_url = row['prot_url']
+        gff_url = row['prot_url'].replace('fungi/fasta', 'fungi/gff3').replace('/pep', '')
 
         # -- CDS --
-        if not os.path.exists(cds_file_name) or not os.path.exists(genome_file_name) or not os.path.exists(protein_file_name):
+        if not os.path.exists(cds_file_name) or not os.path.exists(genome_file_name) or not os.path.exists(protein_file_name) or not os.path.exists(gff_file_name):
             try:
                 cds_r = requests.get(cds_url)
                 if str(cds_r.content[0:15]) == "b'<!doctype html>'":
@@ -94,6 +97,27 @@ class EnsemblFungi_Downloader:
                         shutil.copyfileobj(f_in, f_out)
                 os.remove(f'{file_name}_prot.gz')
 
+                # -- GFF --
+                gff_r = requests.get(gff_url)
+                if str(gff_r.content[0:15]) == "b'<!doctype html>'":
+                    print(f'{file_name} no gff')
+                    os.remove(f'{file_name}_cds.gz')
+                    os.remove(f'{file_name}_dna.gz')
+                    os.remove(f'{file_name}_prot.gz')
+                    return
+                
+                m = re.findall(r"<a href=\"([^?/]+gff3.gz)\"", str(gff_r.content))
+                index = [idx for idx, s in enumerate(m) if '.gz' in s][0]
+
+                gff_url = gff_url + m[index]
+                file = requests.get(gff_url)
+
+                open(f'{file_name}_gff.gz', 'wb').write(file.content)
+                with gzip.open(f'{file_name}_gff.gz', 'rb') as f_in:
+                    with open(gff_file_name, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+                os.remove(f'{file_name}_gff.gz')
+
             except Exception as e:
                 print(f'Something went wrong while downloading {file_name}')
                 print(e)
@@ -107,6 +131,9 @@ class EnsemblFungi_Downloader:
                 if os.path.exists(f'{protein_file_name}.gz'):
                     os.remove(f'{protein_file_name}.gz')
 
+                if os.path.exists(f'{gff_file_name}.gz'):
+                    os.remove(f'{gff_file_name}.gz')
+
                 if os.path.exists(f'{file_name}_dna.gz'):
                     os.remove(f'{file_name}_dna.gz')
 
@@ -116,15 +143,20 @@ class EnsemblFungi_Downloader:
                 if os.path.exists(f'{file_name}_prot.gz'):
                     os.remove(f'{file_name}_prot.gz')
 
+                if os.path.exists(f'{file_name}_gff.gz'):
+                    os.remove(f'{file_name}_gff.gz')
+
                 return
 
         names[allocated_i] = new_name
         genome_fasta_files[allocated_i] = f'{file_name}_genomic.fna'
         cds_fasta_files[allocated_i] = f'{file_name}_cds.fna'
+        gff_files[allocated_i] = f'{file_name}.gff'
         original_names[allocated_i] = file_name
         cds_urls[allocated_i] = f'wget {cds_url}'
         genome_urls[allocated_i] = f'wget {genome_url}'
         proteome_urls[allocated_i] = f'wget {protein_url}'
+        gff_urls[allocated_i] = f'wget {gff_url}'
 
 
     def fetch_url_chunk(self, rows):
@@ -133,16 +165,18 @@ class EnsemblFungi_Downloader:
         names = [None] * len(rows)
         genome_fasta_files = [None] * len(rows)
         cds_fasta_files = [None] * len(rows)
+        gff_files = [None] * len(rows)
         original_names = [None] * len(rows)
         cds_urls = [None] * len(rows)
         genome_urls = [None] * len(rows)
         proteome_urls = [None] * len(rows)
+        gff_urls = [None] * len(rows)
 
         i = 0
         for _, row in rows.iterrows():
             thread = threading.Thread(
                 target=self.fetch_url,
-                args=(row, names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls, i)
+                args=(row, names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls, i)
                 )
             
             i += 1
@@ -156,34 +190,40 @@ class EnsemblFungi_Downloader:
         names = [name for name in names if name is not None]
         genome_fasta_files = [name for name in genome_fasta_files if name is not None]
         cds_fasta_files = [name for name in cds_fasta_files if name is not None]
+        gff_files = [name for name in gff_files if name is not None]
         original_names = [name for name in original_names if name is not None]
         cds_urls = [url for url in cds_urls if url is not None]
         genome_urls = [url for url in genome_urls if url is not None]
         proteome_urls = [url for url in proteome_urls if url is not None]
+        gff_urls = [url for url in gff_urls if url is not None]
 
-        return names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls
+        return names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls
 
 
     def download(self, chunk_size: int = 5):
         all_names = list()
         all_genome_fasta_files = list()
         all_cds_fasta_files = list()
+        all_gff_files = list()
         all_original_names = list()
         all_cds_urls = list()
         all_genome_urls = list()
         all_proteome_urls = list()
+        all_gff_urls = list()
 
         chunks = [self.df.iloc[i:i+chunk_size] for i in range(0, len(self.df), chunk_size)]
 
         for url_chunk in chunks:
-            names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls = self.fetch_url_chunk(url_chunk)
+            names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls = self.fetch_url_chunk(url_chunk)
             all_names.extend(names)
             all_genome_fasta_files.extend(genome_fasta_files)
             all_cds_fasta_files.extend(cds_fasta_files)
+            all_gff_files.extend(gff_files)
             all_original_names.extend(original_names)
             all_cds_urls.extend(cds_urls)
             all_genome_urls.extend(genome_urls)
             all_proteome_urls.extend(proteome_urls)
+            all_gff_urls.extend(gff_urls)
 
 
         with open('data/EnsemblFungi/names.txt', 'w') as f:
@@ -194,10 +234,12 @@ class EnsemblFungi_Downloader:
             'species_name': all_names,
             'genome_file_name': all_genome_fasta_files,
             'cds_file_name': all_cds_fasta_files,
+            'gff_file_name': all_gff_files,
             'original_name': all_original_names,
             'cds_url': all_cds_urls,    
             'genome_url': all_genome_urls,
-            'proteome_url': all_proteome_urls
+            'proteome_url': all_proteome_urls,
+            'gff_url': all_gff_urls
         })
 
         df.to_csv(self.output_file_name, index=False)

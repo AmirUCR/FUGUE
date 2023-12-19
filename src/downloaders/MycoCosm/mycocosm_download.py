@@ -14,11 +14,12 @@ from utils.name_processor import process_two_part_name, process_name
 
 # Helper class
 class Fungus:
-    def __init__(self, name='', cds_url='', protein_url='', genome_url=''):
+    def __init__(self, name='', cds_url='', protein_url='', genome_url='', gff_url=''):
         self.name = name
         self.cds_url = cds_url
         self.protein_url = protein_url
         self.genome_url = genome_url
+        self.gff_url = gff_url
 
 
 class MycoCosm_Downloader:
@@ -66,6 +67,10 @@ class MycoCosm_Downloader:
         annotated_protein_children = [child for child in root.find(
         '''.//folder[@name='Annotation']/folder[@name='Filtered Models (\"best\")']/folder[@name='Proteins']'''
         ) if 'GeneCatalog' in child.attrib['url'] and '.aa.fasta.gz' in child.attrib['url'] ]
+
+        gff_children = [child for child in root.find(
+        '''.//folder[@name='Annotation']/folder[@name='Filtered Models (\"best\")']/folder[@name='Genes']'''
+        ) if 'GeneCatalog' in child.attrib['url'] and '.gff3.gz' in child.attrib['url'] ]
 
         self.fungi_dict = dict()
 
@@ -127,13 +132,32 @@ class MycoCosm_Downloader:
                     print('No label attribute found for protein entry', idx, '.')
                     continue
 
+
+        if gff_children:
+            for idx, child in enumerate(gff_children):
+                name = child.get('label')
+
+                if name and name in self.fungi_dict:
+                    url = child.get('url')
+                    
+                    if len(url) > 10:
+                        self.fungi_dict[name].gff_url = url
+                    else:
+                        print('No GFF URL attribute found for', idx, '. Skipping.')
+                        del self.fungi_dict[name]
+                        continue
+                else:
+                    print('No label attribute found for protein entry', idx, '.')
+                    continue
+
         # Remove entries with missing URLs
         for name, obj in list(self.fungi_dict.items()):
-            if len(obj.cds_url) < 1 or len(obj.genome_url) < 1 or len(obj.protein_url) < 1:
+            if len(obj.cds_url) < 1 or len(obj.genome_url) < 1 or len(obj.protein_url) < 1 or len(obj.gff_url) < 1:
                 del self.fungi_dict[name]
 
 
-    def fetch_url(self, name, cds_url, genome_url, protein_url, names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls, allocated_i):
+    def fetch_url(self, name, cds_url, genome_url, protein_url, gff_url, names,
+                   genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls, allocated_i):
         new_name = process_two_part_name(name)
         file_name = process_name(name)
 
@@ -142,6 +166,7 @@ class MycoCosm_Downloader:
         cds_file_name = f'data/MycoCosm/cds/{file_name}_cds.fna'
         protein_file_name = f'data/MycoCosm/proteomes/{file_name}.faa'
         genome_file_name = f'data/MycoCosm/genomes/{file_name}_genomic.fna'
+        gff_file_name = f'data/MycoCosm/gff/{file_name}.gff'
 
         if not os.path.exists(cds_file_name) or not os.path.exists(protein_file_name) or not os.path.exists(genome_file_name):
             try:
@@ -180,6 +205,18 @@ class MycoCosm_Downloader:
                         shutil.copyfileobj(f_in, f_out)
 
                 os.remove(f'{genome_file_name}_mycocosm.gz')
+
+                # Get GFF
+                response = requests.get(f'https://genome.jgi.doe.gov{gff_url}', cookies=self.cookies)
+
+                with open(f'{gff_file_name}_mycocosm.gz', 'wb') as f:
+                    f.write(response.content)
+
+                with gzip.open(f'{gff_file_name}_mycocosm.gz', 'rb') as f_in:
+                    with open(gff_file_name, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+
+                os.remove(f'{gff_file_name}_mycocosm.gz')
                 
             except Exception as e:
                 print(f'Something went wrong while downloading {name}')
@@ -194,16 +231,20 @@ class MycoCosm_Downloader:
                 if os.path.exists(f'{protein_file_name}_mycocosm.gz'):
                     os.remove(f'{protein_file_name}_mycocosm.gz')
 
+                if os.path.exists(f'{gff_file_name}_mycocosm.gz'):
+                    os.remove(f'{gff_file_name}_mycocosm.gz')
+
                 return
 
         names[allocated_i] = new_name
         genome_fasta_files[allocated_i] = f'{file_name}_genomic.fna'
         cds_fasta_files[allocated_i] = f'{file_name}_cds.fna'
+        gff_files[allocated_i] = f'{file_name}.gff'
         original_names[allocated_i] = file_name
         cds_urls[allocated_i] = f"curl -c cookies.txt -d \"login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD\" \"https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt \"https://genome.jgi.doe.gov{cds_url}\" --output {cds_file_name}_cds_download.gz"
         genome_urls[allocated_i] = f"curl -c cookies.txt -d \"login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD\" \"https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt \"https://genome.jgi.doe.gov{genome_url}\" --output {genome_file_name}_genome_download.gz"
         proteome_urls[allocated_i] = f"curl -c cookies.txt -d \"login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD\" \"https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt \"https://genome.jgi.doe.gov{protein_url}\" --output {protein_file_name}_prot_download.gz"
-
+        gff_urls[allocated_i] = f"curl -c cookies.txt -d \"login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD\" \"https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt \"https://genome.jgi.doe.gov{gff_url}\" --output {gff_file_name}_gff_download.gz"
 
     def fetch_url_chunk(self, chunk):
         threads = []
@@ -211,20 +252,23 @@ class MycoCosm_Downloader:
         names = [None] * len(chunk)
         genome_fasta_files = [None] * len(chunk)
         cds_fasta_files = [None] * len(chunk)
+        gff_files = [None] * len(chunk)
         original_names = [None] * len(chunk)
         cds_urls = [None] * len(chunk)
         genome_urls = [None] * len(chunk)
         proteome_urls = [None] * len(chunk)
+        gff_urls = [None] * len(chunk)
 
         for i, fungi_obj in enumerate(chunk):
             name = fungi_obj.name
             cds_url = fungi_obj.cds_url
             genome_url = fungi_obj.genome_url
             protein_url = fungi_obj.protein_url
+            gff_url = fungi_obj.gff_url
 
             thread = threading.Thread(
                 target=self.fetch_url,
-                args=(name, cds_url, genome_url, protein_url, names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls, i)
+                args=(name, cds_url, genome_url, protein_url, gff_url, names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls, i)
                 )
             
             threads.append(thread)
@@ -236,34 +280,40 @@ class MycoCosm_Downloader:
         names = [name for name in names if name is not None]
         genome_fasta_files = [name for name in genome_fasta_files if name is not None]
         cds_fasta_files = [name for name in cds_fasta_files if name is not None]
+        gff_files = [name for name in gff_files if name is not None]
         original_names = [name for name in original_names if name is not None]
         cds_urls = [url for url in cds_urls if url is not None]
         genome_urls = [url for url in genome_urls if url is not None]
         proteome_urls = [url for url in proteome_urls if url is not None]
+        gff_urls = [url for url in gff_urls if url is not None]
 
-        return names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls
+        return names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls
 
 
     def download(self, chunk_size: int = 1):
         all_names = list()
         all_genome_fasta_files = list()
         all_cds_fasta_files = list()
+        all_gff_files = list()
         all_original_names = list()
         all_cds_urls = list()
         all_genome_urls = list()
         all_proteome_urls = list()
+        all_gff_urls = list()
 
         chunks = [list(self.fungi_dict.values())[i:i+chunk_size] for i in range(0, len(self.fungi_dict), chunk_size)]
 
         for url_chunk in chunks:
-            names, genome_fasta_files, cds_fasta_files, original_names, cds_urls, genome_urls, proteome_urls = self.fetch_url_chunk(url_chunk)
+            names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls = self.fetch_url_chunk(url_chunk)
             all_names.extend(names)
             all_genome_fasta_files.extend(genome_fasta_files)
             all_cds_fasta_files.extend(cds_fasta_files)
+            all_gff_files.extend(gff_files)
             all_original_names.extend(original_names)
             all_cds_urls.extend(cds_urls)
             all_genome_urls.extend(genome_urls)
             all_proteome_urls.extend(proteome_urls)
+            all_gff_urls.extend(gff_urls)
 
         with open('data/MycoCosm/names.txt', 'w') as f:
             for n in all_names:
@@ -273,10 +323,12 @@ class MycoCosm_Downloader:
             'species_name': all_names,
             'genome_file_name': all_genome_fasta_files,
             'cds_file_name': all_cds_fasta_files,
+            'gff_file_name': all_gff_files,
             'original_name': all_original_names,
             'cds_url': all_cds_urls,    
             'genome_url': all_genome_urls,
-            'proteome_url': all_proteome_urls
+            'proteome_url': all_proteome_urls,
+            'gff_url': all_gff_urls
         })
 
         df.to_csv(self.output_file_name, index=False)
