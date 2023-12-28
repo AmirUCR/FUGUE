@@ -32,7 +32,7 @@ def main(choice_arg=''):
         choice = choice_arg
     else:
         print('Welcome to FUGUE. Select an option:\n')
-        choice = input('1. NCBI Datasets\n2. FungiDB\n3. EnsemblFungi\n4. MycoCosm\n5. Merge Downloads\n6. Create CDS from GFF\n7.All of the Above\n8. Quit\nYour choice: ')
+        choice = input('1. NCBI Datasets\n2. FungiDB\n3. EnsemblFungi\n4. MycoCosm\n5. Merge Downloads\n6. Create CDS from GFF\n7. All of the Above\n8. Quit\nYour choice: ')
 
     if choice in downloaders:
         downloader = downloaders[choice]()
