@@ -64,6 +64,7 @@ def create_cds_from_gff():
                                         out)
         
         if response != 'OK':
+            print(f'No records found for {original_name}. Skipping.')
             losers.append(original_name)
 
     print()
@@ -74,4 +75,4 @@ def create_cds_from_gff():
     df.to_csv('data/fourdbs_concat/fourdbs_hi_gff_input_species.csv', index=False)
 
     print('Created CDS files under data/fourdbs_concat/cds_from_gff. Place these in the input folder of ALLEGRO and point to the folder in config.yaml')
-    print('Created data/fourdbs_concat/fourdbs_hi_gff_input_species.csv Use this as the input species csv for ALLEGRO.')
+    print('Created data/fourdbs_concat/fourdbs_hi_gff_input_species.csv. Use this as the input species csv for ALLEGRO.')

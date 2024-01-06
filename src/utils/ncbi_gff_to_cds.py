@@ -44,6 +44,11 @@ def ncbi_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
                     continue
                 parts = line.strip().split('\t')
 
+                if len(parts) < 2:
+                    print('ncbi_gff_to_cds.py: Problematic line. Skipping')
+                    print(name, line)
+                    continue
+
                 if parts[2].lower() == 'gene':
                     # process previous gene
                     current_coords = sorted(current_coords, key=lambda x: x[0])
@@ -83,18 +88,23 @@ def ncbi_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
 
     goi_seq_dict = extract_cds(gff_file, genome, goi)
 
-    if not goi_seq_dict:
+    if goi_seq_dict is None:
         return name
 
     records = list()
     for k, v in goi_seq_dict.items():
-        header = headers[k]
-        record = SeqRecord(
-            Seq(v),
-            id=header.split(' ')[0],
-            description=' '.join(headers[k].split(' ')[1:]),
-        )
-        records.append(record)
+        if v != '':
+            header = headers[k]
+            record = SeqRecord(
+                Seq(v),
+                id=header.split(' ')[0],
+                description=' '.join(headers[k].split(' ')[1:]),
+            )
+            records.append(record)
+
+    # Failure
+    if len(records) == 0:
+        return name
 
     new_name = name + '_cds_from_gff.fna'
     out = os.path.join(output_file, new_name)

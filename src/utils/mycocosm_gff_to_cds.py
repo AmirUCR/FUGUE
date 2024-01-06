@@ -40,7 +40,7 @@ def mycocosm_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
                 parts = line.strip().split('\t')
 
                 if len(parts) < 2:
-                    print('Problematic line. Skipping')
+                    print('mycocosm_gff_to_cds.py: Problematic line. Skipping')
                     print(name, line)
                     continue
 
@@ -83,18 +83,23 @@ def mycocosm_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
 
     goi_seq_dict = extract_cds(gff_file, genome, goi)
 
-    if not goi_seq_dict:
+    if goi_seq_dict is None:
         return name
 
     records = list()
     for k, v in goi_seq_dict.items():
-        header = headers[goi[k]]
-        record = SeqRecord(
-            Seq(v),
-            id=header.split(' ')[0],
-            description=' '.join(header.split(' ')[1:]),
-        )
-        records.append(record)
+        if v != '':
+            header = headers[goi[k]]
+            record = SeqRecord(
+                Seq(v),
+                id=header.split(' ')[0],
+                description=' '.join(header.split(' ')[1:]),
+            )
+            records.append(record)
+    
+    # Failure
+    if len(records) == 0:
+        return name
 
     new_name = name + '_cds_from_gff.fna'
     out = os.path.join(output_file, new_name)
