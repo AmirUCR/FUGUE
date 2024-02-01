@@ -5,7 +5,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 
-def ncbi_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
+def ncbi_gff_to_cds(name, cds_file, genome_file, gff_file, output_file='data/NCBI/cds_from_gff/'):
     # load the CDS we are interested in aka orthologs
     records = SeqIO.parse(cds_file, 'fasta')
 
@@ -107,6 +107,8 @@ def ncbi_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
         return name
 
     new_name = name + '_cds_from_gff.fna'
+
+    if not os.path.exists(output_file): os.mkdir(output_file)
     out = os.path.join(output_file, new_name)
 
     with open(out, "w") as f:

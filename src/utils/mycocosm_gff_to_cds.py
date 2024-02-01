@@ -5,7 +5,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 
-def mycocosm_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
+def mycocosm_gff_to_cds(name, cds_file, genome_file, gff_file, output_file='data/MycoCosm/cds_from_gff/'):
     # load the CDS we are interested in aka orthologs
     records = SeqIO.parse(cds_file, 'fasta')
 
@@ -14,7 +14,7 @@ def mycocosm_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
 
     for record in records:
         rec_id = record.id
-        gene_id = record.description.split(' ')[1].split('|')[2]
+        gene_id = record.description.split('|')[2]
         goi[gene_id] = rec_id
         headers[rec_id] = record.description
 
@@ -102,6 +102,8 @@ def mycocosm_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
         return name
 
     new_name = name + '_cds_from_gff.fna'
+
+    if not os.path.exists(output_file): os.mkdir(output_file)
     out = os.path.join(output_file, new_name)
 
     with open(out, "w") as f:
