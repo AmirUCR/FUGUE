@@ -5,8 +5,8 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 
-def ensembl_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
-    # load the CDS we are interested in aka orthologs
+def ensembl_gff_to_cds(name, cds_file, genome_file, gff_file, output_file='data/EnsemblFungi/cds_from_gff/'):
+    # load the CDS we are interested in
     records = SeqIO.parse(cds_file, 'fasta')
 
     goi = list()
@@ -17,7 +17,7 @@ def ensembl_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
         if gene_id:
             gene_id = gene_id.group(1)
         else:
-            print(f'ncbi_gff_to_cds: {name} has no locus tag. Attempting record id.')
+            print(f'ensembl_gff_to_cds: {name} has no attribute gene:(.+?):. Attempting record id.')
             gene_id = record.id
 
         goi.append(gene_id)
@@ -36,17 +36,9 @@ def ensembl_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
 
         with open(gff_file, 'r') as gff:
             for line in gff:
-                if line.startswith('#'):
-                    reading_gene = ''
-                    current_seq_id = ''
-                    current_gene_strand = ''
-                    current_coords = []
-                    continue
                 parts = line.strip().split('\t')
 
                 if len(parts) < 2:
-                    print('ensemble_gff_to_csv.py: Problematic line. Skipping')
-                    print(name, line)
                     continue
 
                 if parts[2].lower() == 'gene':
@@ -108,6 +100,8 @@ def ensembl_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
         return name
 
     new_name = name + '_cds_from_gff.fna'
+    
+    if not os.path.exists(output_file): os.mkdir(output_file)
     out = os.path.join(output_file, new_name)
 
     with open(out, "w") as f:
