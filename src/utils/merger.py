@@ -124,7 +124,7 @@ def merge_gffs():
 
         cds_f_name = row['cds_file_name']
 
-        shutil.copy(f"{source_to_dir[row['source']]}/cds_from_gff/{cds_f_name}", cds_f_name)
+        shutil.copy(f"{source_to_dir[row['source']]}/cds_from_gff/{cds_f_name}", new_cds_dir)
 
     concat.to_csv(os.path.join(concat_destination_dir, 'fourdbs_gff_input_species.csv'), index=False)
     print()
