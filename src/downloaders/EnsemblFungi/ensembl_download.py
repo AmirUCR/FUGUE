@@ -19,7 +19,7 @@ class EnsemblFungi_Downloader:
 
         generate_dirs('data/EnsemblFungi')
 
-        self.output_file_name = 'data/EnsemblFungi/ensembl_input_species.csv'
+        self.output_file_name = 'data/EnsemblFungi/ensemblfungi_input_species.csv'
 
 
     def fetch_url(self, row, names, genome_fasta_files, cds_fasta_files, gff_files, original_names, cds_urls, genome_urls, proteome_urls, gff_urls, allocated_i):
