@@ -5,7 +5,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 
-def fungidb_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
+def fungidb_gff_to_cds(name, cds_file, genome_file, gff_file, output_file='data/FungiDB/cds_from_gff/'):
     # load the CDS we are interested in aka orthologs
     records = SeqIO.parse(cds_file, 'fasta')
 
@@ -68,7 +68,7 @@ def fungidb_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
                         return
                     
                     for g in goi:
-                        if g.startswith(gene_id):
+                        if gene_id in g:
                             reading_gene = g
 
                 elif reading_gene != '' and parts[2].lower() == 'cds':
@@ -101,6 +101,8 @@ def fungidb_gff_to_cds(name, cds_file, genome_file, gff_file, output_file):
         return name
 
     new_name = name + '_cds_from_gff.fna'
+    
+    if not os.path.exists(output_file): os.mkdir(output_file)
     out = os.path.join(output_file, new_name)
 
     with open(out, "w") as f:
