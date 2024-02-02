@@ -1,6 +1,7 @@
 import os
 import shutil
 import pandas as pd
+from Bio import SeqIO
 
 
 def merge_dbs():
@@ -118,14 +119,26 @@ def merge_gffs():
     concat = concat[~concat['original_name'].isin(losers)]
     concat = concat.reset_index(drop=True)
 
+    losers = list()
+
     for idx, row in concat.iterrows():
         if idx % 100 == 0:
             print(f'Done with {idx} species...', end='\r')
 
         cds_f_name = row['cds_file_name']
+        
+        l = len(list(SeqIO.parse(f"{source_to_dir[row['source']]}/cds_from_gff/{cds_f_name}", 'fasta')))
+
+        if l < 2000:
+            losers.append(row['original_name'])
+            print(f'merger.py: File {cds_f_name} has fewer than 2000 genes ({l}). Skipping.')
+            continue
 
         shutil.copy(f"{source_to_dir[row['source']]}/cds_from_gff/{cds_f_name}", new_cds_dir)
 
+    concat = concat[~concat['original_name'].isin(losers)]
+    concat = concat.reset_index(drop=True)
     concat.to_csv(os.path.join(concat_destination_dir, 'fourdbs_gff_input_species.csv'), index=False)
     print()
+    print(f'Merged {len(concat)} species to {concat_destination_dir}/{cds_from_gff}/.')
     print(f"Done. Check {os.path.join(concat_destination_dir, 'fourdbs_gff_input_species.csv')}")
