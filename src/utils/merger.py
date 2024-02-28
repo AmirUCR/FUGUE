@@ -81,8 +81,13 @@ def merge_gffs():
     concat_destination_dir = 'data/fourdbs_concat'
 
     new_cds_dir = os.path.join(concat_destination_dir, 'cds_from_gff')
+    new_delimited_cds_dir = os.path.join(concat_destination_dir, 'delimited_cds_from_gff')
 
-    if not os.path.exists(new_cds_dir): os.makedirs(new_cds_dir)
+    if not os.path.exists(new_cds_dir):
+        os.makedirs(new_cds_dir)
+
+    if not os.path.exists(new_delimited_cds_dir):
+        os.makedirs(new_delimited_cds_dir)
 
     ncbi = pd.read_csv(f'{ncbi_dir}/ncbi_gff_input_species.csv')
     ncbi['source'] = 'NCBI'
@@ -136,9 +141,51 @@ def merge_gffs():
 
         shutil.copy(f"{source_to_dir[row['source']]}/cds_from_gff/{cds_f_name}", new_cds_dir)
 
+        if os.path.exists(f"{source_to_dir[row['source']]}/delimited_cds_from_gff/{cds_f_name}"):
+            shutil.copy(f"{source_to_dir[row['source']]}/delimited_cds_from_gff/{cds_f_name}", new_delimited_cds_dir)
+
     concat = concat[~concat['original_name'].isin(losers)]
     concat = concat.reset_index(drop=True)
-    concat.to_csv(os.path.join(concat_destination_dir, 'fourdbs_gff_input_species.csv'), index=False)
+
+    cds = os.listdir(concat_destination_dir + "/cds/")
+    gffs = os.listdir(concat_destination_dir + "/gff/")
+    genomes = os.listdir(concat_destination_dir + "/genomes/")
+    proteomes = os.listdir(concat_destination_dir + "/proteomes/")
+    cds_from_gffs = os.listdir(concat_destination_dir + "/cds_from_gff/")
+
+    remove_list = list()
+    for cds_f in concat['cds_file_name'].tolist():
+        if cds_f.replace('_cds_from_gff', '_cds') not in cds:
+            remove_list.append(cds_f)
+    concat = concat[~concat['cds_file_name'].isin(remove_list)].reset_index(drop=True)
+
+    for cds_f in cds:
+        if cds_f.replace('_cds.fna', '_cds_from_gff.fna') not in concat['cds_file_name'].tolist():
+            os.remove(f'{concat_destination_dir}/cds/{cds_f}')
+            print('remove', f'{concat_destination_dir}/cds/{cds_f}')
+
+    for gff_f in gffs:
+        if gff_f not in concat['gff_file_name'].tolist():
+            os.remove(f'{concat_destination_dir}/gff/{gff_f}')
+            print('remove', f'{concat_destination_dir}/gff/{gff_f}')
+
+    for genome_f in genomes:
+        if genome_f not in concat['genome_file_name'].tolist():
+            os.remove(f'{concat_destination_dir}/genomes/{genome_f}')
+            print('remove', f'{concat_destination_dir}/genomes/{genome_f}')
+
+    for prot_f in proteomes:
+        if prot_f.replace('.faa', '') not in concat['original_name'].tolist():
+            os.remove(f'{concat_destination_dir}/proteomes/{prot_f}')
+            print('remove', f'{concat_destination_dir}/proteomes/{prot_f}')
+
+    for cds_from_gff in cds_from_gffs:
+        if cds_from_gff not in concat['cds_file_name'].tolist():
+            os.remove(f'{concat_destination_dir}/cds_from_gff/{cds_from_gff}')
+            print('remove', f'{concat_destination_dir}/cds_from_gff/{cds_from_gff}')
+
+    concat.to_csv(os.path.join(concat_destination_dir, 'fourdbs_input_species.csv'), index=False)
+
     print()
-    print(f'Merged {len(concat)} species to {concat_destination_dir}/{cds_from_gff}/.')
-    print(f"Done. Check {os.path.join(concat_destination_dir, 'fourdbs_gff_input_species.csv')}")
+    print(f'Merged {len(concat)} species to {concat_destination_dir}/fourdbs_input_species/.')
+    print(f"Done. Check {os.path.join(concat_destination_dir, 'fourdbs_input_species.csv')}")

@@ -241,10 +241,10 @@ class MycoCosm_Downloader:
         cds_fasta_files[allocated_i] = f'{file_name}_cds.fna'
         gff_files[allocated_i] = f'{file_name}.gff'
         original_names[allocated_i] = file_name
-        cds_urls[allocated_i] = f"curl -c cookies.txt -d \"login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD\" \"https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt \"https://genome.jgi.doe.gov{cds_url}\" --output {cds_file_name}_cds_download.gz"
-        genome_urls[allocated_i] = f"curl -c cookies.txt -d \"login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD\" \"https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt \"https://genome.jgi.doe.gov{genome_url}\" --output {genome_file_name}_genome_download.gz"
-        proteome_urls[allocated_i] = f"curl -c cookies.txt -d \"login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD\" \"https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt \"https://genome.jgi.doe.gov{protein_url}\" --output {protein_file_name}_prot_download.gz"
-        gff_urls[allocated_i] = f"curl -c cookies.txt -d \"login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD\" \"https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt \"https://genome.jgi.doe.gov{gff_url}\" --output {gff_file_name}_gff_download.gz"
+        cds_urls[allocated_i] = f'curl -c cookies.txt -d "login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD" "https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt "https://genome.jgi.doe.gov{cds_url}" --output {cds_file_name}_cds_download.gz'
+        genome_urls[allocated_i] = f'curl -c cookies.txt -d "login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD" "https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt "https://genome.jgi.doe.gov{genome_url}" --output {genome_file_name}_genome_download.gz'
+        proteome_urls[allocated_i] = f'curl -c cookies.txt -d "login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD" "https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt "https://genome.jgi.doe.gov{protein_url}" --output {protein_file_name}_prot_download.gz'
+        gff_urls[allocated_i] = f'curl -c cookies.txt -d "login=YOUR_JGI_USERNAME&password=YOUR_JGI_PASSWORD" "https://signon.jgi.doe.gov/signon/create && curl -b cookies.txt "https://genome.jgi.doe.gov{gff_url}" --output {gff_file_name}_gff_download.gz'
 
     def fetch_url_chunk(self, chunk):
         threads = []

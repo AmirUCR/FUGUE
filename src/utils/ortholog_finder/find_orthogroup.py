@@ -2,10 +2,14 @@ import os
 import re
 import sys
 import yaml
+import shutil
 import argparse
 import pandas as pd
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
+
+if os.path.exists('orthogroups'):
+    shutil.rmtree('orthogroups')
 
 if not os.path.exists('orthogroups'):
     os.mkdir('orthogroups')
@@ -86,11 +90,16 @@ def main() -> int:
     d = dict()
     for idx, c in enumerate(df.columns[1:]):
         if idx % 100 == 0:
-            print(idx, '...')
+            print(f'{idx}...')
 
         f_name = c + '_cds.fna'
 
         cds_path = os.path.join(args.cds_directory, f_name)
+
+        if not os.path.exists(cds_path):
+            dropped_columns.append(c)
+            continue
+
         records = list(SeqIO.parse(open(cds_path), 'fasta'))
 
         records_to_write = list()
@@ -120,11 +129,13 @@ def main() -> int:
             SeqIO.write(records_to_write, f, 'fasta')
 
     print('Wrote', count, 'genes.')
+
     input_species_file = args.input_species_directory
+
     df = pd.read_csv(input_species_file)
     df = df.drop(df[df['species_name'].isin(dropped_columns)].index.tolist()).reset_index(drop=True)
-    df.to_csv('final_input_species.csv', index=False)
-    print('Done. See file', 'final_input_species.csv', 'Use this as input to ALLEGRO in config.yaml')
+    df.to_csv('../../../data/fourdbs_concat/fourdbs_input_species.csv', index=False)
+    print('Done. See file data/fourdbs_concat/fourdbs_input_species.csv. Use this as input to ALLEGRO in config.yaml')
 
     return 0
 
