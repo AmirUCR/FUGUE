@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 import xml.etree.ElementTree as ET
 
-df = pd.read_csv('fourdbs_hi_input_species.csv')
+df = pd.read_csv('fourdbs_input_species.csv')
 
 
 def get_taxonomic_hierarchy(species_name):
