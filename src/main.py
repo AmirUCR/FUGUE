@@ -15,7 +15,7 @@ from downloaders.MycoCosm.mycocosm_download import MycoCosm_Downloader
 
 
 def signal_handler(sig, frame):
-    print(f'\Exiting FUGUE. Ciao.')
+    print(f'\nExiting FUGUE. Ciao.')
     sys.exit(0)
 
 
