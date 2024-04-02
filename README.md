@@ -2,7 +2,7 @@
 
 FUGUE is a Python program that allows you to download genomes, CDS, GFF, and proteomes for more than 2,000 fungal species used in its parent project, [ALLEGRO](https://github.com/ucrbioinfo/allegro). It draws data from [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/), [FungiDB](https://fungidb.org/), [EnsemblFungi](https://fungi.ensembl.org/index.html), and [MycoCosm](https://mycocosm.jgi.doe.gov/mycocosm/home), and removes duplicate downloads. Additionally, FUGUE can:
 
-1. Create CDS from downloaded GFF files and mark the intron/exon boundaries
+1. Create CDS from downloaded GFF files and mark the intron/exon boundaries using [GFFRead](https://github.com/gpertea/gffread)
 1. Utilize [DIAMOND](https://github.com/bbuchfink/diamond) to create orthogroups for your genes of interest
 1. Create the required input for ALLEGRO
 
