@@ -52,7 +52,8 @@ def merge_dbs():
     # Losers go here
     losers = ['candida_glabrata', 'lasallia_pustulata', 'neosartorya_fischeri_nrrl_181',
             'aspergillus_campestris', 'volvariella_volvacea_v23', 'mucor_racemosus',
-            'mucor_lanceolatus', 'mucor_fuscus', 'mucor_endophyticus']
+            'mucor_lanceolatus', 'mucor_fuscus', 'mucor_endophyticus',
+            'puccinia_coronata_var_avenae_f_sp_avenae']
 
     concat = concat[~concat['original_name'].isin(losers)]
     concat = concat.reset_index(drop=True)
