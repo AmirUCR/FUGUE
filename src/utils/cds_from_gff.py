@@ -1,7 +1,7 @@
 import os
 import subprocess
 import pandas as pd
-from concurrent.futures import ThreadPoolExecutor, as_completed
+# from concurrent.futures import ThreadPoolExecutor, as_completed
 
 def process_row(row, src_base_path, src):
     original_name = row['original_name']
@@ -12,8 +12,8 @@ def process_row(row, src_base_path, src):
     if not os.path.exists(output_file):
         os.makedirs(output_file)
 
-    if os.path.exists(f'{src_base_path}/cds_from_gff/{original_name}_cds_from_gff.fna'):
-        return
+    # if os.path.exists(f'{src_base_path}/cds_from_gff/{original_name}_cds_from_gff.fna'):
+    #     return
 
     gffread_command = ['src/utils/gffread/gffread/gffread', '-x', f'{src_base_path}/cds_from_gff/{original_name}_cds_from_gff.fna', '-g', f'{src_base_path}/genomes/{genome_file_name}', f'{src_base_path}/gff/{gff_file_name}', '-W', '--attrs', 'CDS']
     process = subprocess.Popen(gffread_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -46,24 +46,27 @@ def create_cds_from_gff():
     base_paths = ['data/NCBI', 'data/FungiDB', 'data/EnsemblFungi', 'data/MycoCosm']
     manifests = ['ncbi_input_species.csv', 'fungidb_input_species.csv', 'ensemblfungi_input_species.csv', 'mycocosm_input_species.csv']
 
-    num_cores = max(1, os.cpu_count() - 1) # Use all cores except one
+    num_cores = 1 #max(1, os.cpu_count() - 1) # Use all cores except one
     for m_idx, m in enumerate(manifests):
-        count = 0
+        # count = 0
         csv_path = os.path.join(base_paths[m_idx], m)
 
         df = pd.read_csv(csv_path).drop_duplicates(subset='cds_file_name', ignore_index=True)
         
         chunk_size = max(1, len(df) // num_cores) # Calculate chunk size based on number of cores
         chunks = [df[i:i + chunk_size] for i in range(0, df.shape[0], chunk_size)]
+        
+        for chunk in chunks:
+            process_rows_chunk(chunk, base_paths[m_idx], sources[m_idx])
 
-        with ThreadPoolExecutor(max_workers=num_cores) as executor:
-            futures = []
-            for chunk in chunks:
-                futures.append(executor.submit(process_rows_chunk, chunk, base_paths[m_idx], sources[m_idx]))
+        # with ThreadPoolExecutor(max_workers=num_cores) as executor:
+        #     futures = []
+        #     for chunk in chunks:
+        #         futures.append(executor.submit(process_rows_chunk, chunk, base_paths[m_idx], sources[m_idx]))
 
-            for _ in as_completed(futures):
-                count += chunk_size
-                print(f'Done with {min(count, df.shape[0])} {sources[m_idx]} species...')
+        #     for _ in as_completed(futures):
+        #         count += chunk_size
+        #         print(f'Done with {min(count, df.shape[0])} {sources[m_idx]} species...')
 
         files = os.listdir(f'data/{sources[m_idx]}/cds_from_gff')
         df['cds_file_name'] = df['cds_file_name'].str.replace('_cds', '_cds_from_gff')

@@ -6,5 +6,9 @@ ortho_path: '../diamond/Orthogroups_HI.tsv'
 reference_species: 'saccharomyces_cerevisiae'  # species must match with species.fna in cds path and a column name in Orthogroups.tsv
 
 gene_names: [
-  'LYS2', 'MET17', 'TRP1', 'URA3', 'FCY1', 'GAP1', 'CAN1'
+  'LYS2', 'TRP1', 'URA3', 'FCY1', 'GAP1', 'CAN1'
 ]
+
+# gene_names: [
+# 'ACT1','ATP6','BMS1','BRE2','CCT8','CMD1','COB','COX1','COX2','COX3','DIP2','DPH5','DYS1','ELP3','ESF1','FAP7','FRS1','HEM12','HIS4','HIS7','ILV1','KRE33','MCM7','MET6','MIP1','MRPL19','MSF1','MSS51','MVD1','NCS6','NDI1','NOG1','NOP14','OLI1','PAH1','PGK1','POL2','PRT1','RAD2','RLI1','RPB2','RPF2','RPN1','RPO21','RPP0','SDA1','SEC21','SEC26','SPB1','TEF1','TIF5','TIM44','TOP1','TRM1','TRP3','TSR1','TUB1','TUB2','UTP21','VMA1','ZPR1'
+# ]

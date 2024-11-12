@@ -9,3 +9,5 @@ src/downloaders/MycoCosm/authenticate.txt
 src/downloaders/MycoCosm/cookies
 src/downloaders/NCBI/ncbi_key.txt
 __pycache__/
+classifications/key.txt
+key.txt

@@ -33,6 +33,8 @@ def process_file(src, f_name):
 
 
 def cds_from_gff_delimiter():
+    print('Creating delimited CDS from GFF.\n')
+    
     sources = ['NCBI', 'FungiDB', 'EnsemblFungi', 'MycoCosm']
 
     for src in sources:
@@ -42,8 +44,11 @@ def cds_from_gff_delimiter():
 
         files = [f for f in os.listdir(f'data/{src}/cds_from_gff') if 'cds_from_gff' in f]
         
-        with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(process_file, src, f_name) for f_name in files]
+        for f_name in files:
+            process_file(src, f_name)
+
+        # with ThreadPoolExecutor() as executor:
+        #     futures = [executor.submit(process_file, src, f_name) for f_name in files]
             
-            for future in futures:
-                future.result()
+        #     for future in futures:
+        #         future.result()

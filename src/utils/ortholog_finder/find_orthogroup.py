@@ -135,6 +135,8 @@ def main() -> int:
     df = pd.read_csv(input_species_file)
     df = df.drop(df[df['species_name'].isin(dropped_columns)].index.tolist()).reset_index(drop=True)
     df.to_csv('../../../data/fourdbs_concat/fourdbs_input_species.csv', index=False)
+    df.to_csv('fourdbs_input_species.csv', index=False)
+
     print('Done. See file data/fourdbs_concat/fourdbs_input_species.csv. Use this as input to ALLEGRO in config.yaml')
 
     return 0

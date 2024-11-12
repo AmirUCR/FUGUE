@@ -4,6 +4,12 @@ import signal
 import threading
 import subprocess
 
+try:
+    import setproctitle
+    setproctitle.setproctitle('FUGUE')
+except ModuleNotFoundError:
+    pass
+
 from utils.merger import merge_dbs, merge_gffs
 from utils.delimited_ortho import delimited_ortho
 from utils.cds_from_gff import create_cds_from_gff
