@@ -13,4 +13,4 @@ You may find the documentation for FUGUE at its [GitHub Wiki](https://github.com
 If you run into any issues or have any suggestions for FUGUE, please report them on our GitHub Issues tracker. It's the fastest way to get support and helps us improve FUGUE for everyone.
 
 # About
-FUGUE has been developed and is maintained by Amir Mohseni, and Stefano Lonardi at the University of California, Riverside.
+FUGUE has been developed and is maintained by Amirsadra Mohseni, and Stefano Lonardi at the University of California, Riverside.
