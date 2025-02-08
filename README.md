@@ -7,7 +7,7 @@ FUGUE is a Python program that allows you to download genomes, CDS, GFF, and pro
 1. Create the required input for ALLEGRO
 
 # Documentation
-You may find the documentation for FUGUE at its [GitHub Wiki](https://github.com/AmirUCR/Fugue/wiki/).
+You may find the documentation for FUGUE at its [GitHub Wiki](https://github.com/ucrbioinfo/fugue/wiki).
 
 # Support
 If you run into any issues or have any suggestions for FUGUE, please report them on our GitHub Issues tracker. It's the fastest way to get support and helps us improve FUGUE for everyone.
