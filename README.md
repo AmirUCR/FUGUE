@@ -14,3 +14,6 @@ If you run into any issues or have any suggestions for FUGUE, please report them
 
 # About
 FUGUE has been developed and is maintained by Amirsadra Mohseni, and Stefano Lonardi at the University of California, Riverside.
+
+# Disclaimer
+For programmers, if you open one of the scripts and see hard-coded paths, do not panic (e.g., [this line](https://github.com/ucrbioinfo/fugue/blob/a2af815aa387e9682d4c5ef2621eadd89f68f05e/src/utils/diamond/5_run_bidirectional_diamond.sh#L5)). Following the Wiki instructions, you will set your own paths and these scripts will be updated accordingly.
