@@ -8,10 +8,13 @@ FUGUE (_<ins>F</ins>ungal <ins>U</ins>niverse <ins>G</ins>enome <ins>U</ins>nifi
 1. Create the required input for ALLEGRO
 
 # Documentation
-You may find the documentation for FUGUE at its [GitHub Wiki](https://github.com/AmirUCR/Fugue/wiki/).
+You may find the documentation for FUGUE at its [GitHub Wiki](https://github.com/ucrbioinfo/fugue/wiki).
 
 # Support
 If you run into any issues or have any suggestions for FUGUE, please report them on our GitHub Issues tracker. It's the fastest way to get support and helps us improve FUGUE for everyone. You may also email the authors at their provided e-mail addresses on the publication directly.
 
 # About
 FUGUE has been developed and is maintained by <ins>Amir</ins>sadra Mohseni, and Stefano Lonardi at the University of California, Riverside.
+
+# Disclaimer
+For programmers, if you open one of the scripts and see hard-coded paths, do not panic (e.g., [this line](https://github.com/ucrbioinfo/fugue/blob/a2af815aa387e9682d4c5ef2621eadd89f68f05e/src/utils/diamond/5_run_bidirectional_diamond.sh#L5)). Following the Wiki instructions, you will set your own paths and these scripts will be updated accordingly.
