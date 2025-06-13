@@ -10,7 +10,7 @@ FUGUE is a Python program that allows you to download genomes, CDS, GFF, and pro
 You may find the documentation for FUGUE at its [GitHub Wiki](https://github.com/AmirUCR/Fugue/wiki/).
 
 # Support
-If you run into any issues or have any suggestions for FUGUE, please report them on our GitHub Issues tracker. It's the fastest way to get support and helps us improve FUGUE for everyone.
+If you run into any issues or have any suggestions for FUGUE, please report them on our GitHub Issues tracker. It's the fastest way to get support and helps us improve FUGUE for everyone. You may also email the authors at their provided e-mail addresses on the publication directly.
 
 # About
-FUGUE has been developed and is maintained by Amir Mohseni, and Stefano Lonardi at the University of California, Riverside.
+FUGUE has been developed and is maintained by <ins>Amir</ins>sadra Mohseni, and Stefano Lonardi at the University of California, Riverside.
