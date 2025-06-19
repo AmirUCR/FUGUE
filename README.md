@@ -1,4 +1,4 @@
-<img width="200" alt="FUGUE Logo" src="https://github.com/user-attachments/assets/20de3361-74e5-472a-a897-141653b8a342">
+<img width="150" alt="FUGUE Logo" src="https://github.com/user-attachments/assets/20de3361-74e5-472a-a897-141653b8a342">
 
 # Introduction
 FUGUE (_<ins>F</ins>ungal <ins>U</ins>niverse <ins>G</ins>enome <ins>U</ins>nification <ins>E</ins>ngine_) is a Python tool that allows you to download genomes, CDS, GFF, and proteomes for more than 2,000 fungal species used in its parent project, [ALLEGRO](https://github.com/ucrbioinfo/allegro). It draws data from [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/), [FungiDB](https://fungidb.org/), [EnsemblFungi](https://fungi.ensembl.org/index.html), and [MycoCosm](https://mycocosm.jgi.doe.gov/mycocosm/home), and removes duplicate downloads. Additionally, FUGUE can:
